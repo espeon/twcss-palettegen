@@ -9,6 +9,10 @@ const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 async function getColorName(hex) {
   try {
+    if(hex.replace('#', '').length % 3 != 0 && hex.replace('#', '').length !== 8)
+      return "Invalid color"
+    if(hex.replace('#', '').length == 8)
+      hex = hex.slice(0, -2);
     const response = await fetch(
       `https://api.color.pizza/v1/${hex.replace('#', '')}`
     );
@@ -21,22 +25,36 @@ async function getColorName(hex) {
 }
 
 function generatePalette(baseColor) {
-  const base = oklch(baseColor);
+  let base;
+  try {
+    base = oklch(baseColor);
+    if(base.h === undefined){
+      console.log("UNDEFINED HUE")
+      base.h = 0
+      console.log(base.h)
+    }
+  } catch (error) {
+    console.error("Error converting base color:", error);
+    return null;
+  }
+
   if (!base) return null;
 
   const palette = {};
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
   SHADES.forEach((shade) => {
     let color;
     if (shade < 500) {
       color = oklch({
-        l: base.l + (1 - base.l) * ((500 - shade) / 450),
-        c: base.c * (shade / 500),
+        l: base.l + (1 - base.l) * ((500 - shade) / 470),
+        c: base.c * (shade / 1000),
         h: base.h,
       });
     } else if (shade > 500) {
       color = oklch({
-        l: base.l * ((1000 - shade) / 500),
-        c: base.c + (0.4 - base.c) * ((shade - 500) / 500),
+        l: base.l * ((1000 - shade) / 440) * .89,
+        c: base.c + (0-base.c) * (shade / 750) * .1,
         h: base.h,
       });
     } else {
@@ -44,7 +62,7 @@ function generatePalette(baseColor) {
     }
     palette[shade] = color;
   });
-
+  console.log(palette)
   return palette;
 }
 
@@ -52,6 +70,12 @@ function generateTailwindJSON(palette, colorName = 'color') {
   const rgbColors = {};
   const oklchColors = {};
   Object.entries(palette).forEach(([shade, color]) => {
+    console.log(shade, color)
+    if(color.h === undefined){
+      console.log("UNDEFINED HUE")
+      color.h = 69
+      console.log(hue)
+    }
     rgbColors[shade] = formatHex(color);
     oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(
       3
