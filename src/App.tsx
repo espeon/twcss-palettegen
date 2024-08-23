@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { hex, oklch, lch, luminance, formatRgb, formatHex, wcagContrast } from 'culori';
+import { oklch, formatRgb, formatHex, wcagContrast, serializeHex, parseHex, convertOklabToRgb } from 'culori';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -98,9 +98,12 @@ const genRanHex = (size) =>
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join('');
 
-function clampLuminance(hexColor, minLuminance = 0.5, maxLuminance = 1) {
+function clampLuminance(hexColor, minLuminance = 0.3, maxLuminance = 0.8) {
   // Convert hex color to OKLCH
-  const colorOKLCH = hex(hexColor).oklch();
+  const colore = parseHex(hexColor)
+  console.log("parsed hex", colore)
+  const colorOKLCH = oklch(colore)
+  console.log("oklch", colorOKLCH)
 
   // Clamp the luminance value
   const clampedLuminance = Math.max(minLuminance, Math.min(maxLuminance, colorOKLCH.l));
@@ -109,11 +112,12 @@ function clampLuminance(hexColor, minLuminance = 0.5, maxLuminance = 1) {
   const clampedColorOKLCH = oklch({
     l: clampedLuminance,
     c: colorOKLCH.c,
-    h: colorOKLCH.h,
+    h: colorOKLCH.h ?? 0,
+    mode: 'oklch'
   });
 
   // Convert clamped OKLCH color back to hex
-  return clampedColorOKLCH.hex();
+  return formatHex(clampedColorOKLCH);
 }
 
 export default function Component() {
