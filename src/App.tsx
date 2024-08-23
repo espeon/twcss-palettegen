@@ -96,6 +96,33 @@ const genRanHex = (size) =>
   [...Array(size)]
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join('');
+function clampHexColorComponent(component) {
+  // Convert hex component to an integer
+  let value = parseInt(component, 16);
+
+  // Clamp the value between 0x50 and 0xC0
+  value = Math.max(0x50, Math.min(0xC0, value));
+
+  // Convert back to a hex string, ensuring two digits
+  return value.toString(16).padStart(2, '0');
+}
+function clampHexColor(hexColor) {
+  // Remove the '#' if present
+  hexColor = hexColor.replace(/^#/, '');
+
+  // Extract the red, green, and blue components
+  let r = hexColor.substring(0, 2);
+  let g = hexColor.substring(2, 4);
+  let b = hexColor.substring(4, 6);
+
+  // Clamp each component
+  r = clampHexColorComponent(r);
+  g = clampHexColorComponent(g);
+  b = clampHexColorComponent(b);
+
+  // Reassemble the clamped color components into a full hex color
+  return `#${r}${g}${b}`;
+}
 
 export default function Component() {
   const [inputColor, setInputColor] = useState('#' + genRanHex(6));
@@ -141,7 +168,7 @@ export default function Component() {
             className="flex-grow"
           />
           <Button
-            onClick={() => setInputColor('#' + genRanHex(6))}
+            onClick={() => setInputColor(clampHexColor(genRanHex(6)))}
             className="w-full sm:w-auto"
           >
             Random
