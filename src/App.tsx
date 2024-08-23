@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { oklch, formatRgb, formatHex, wcagContrast } from 'culori';
+import { hex, oklch, lch, luminance, formatRgb, formatHex, wcagContrast } from 'culori';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -82,9 +82,10 @@ function generateTailwindJSON(palette, colorName = 'color') {
     )} ${color.h.toFixed(3)})`;
   });
   let rgb = {};
-  rgb[colorName.toLowerCase().replace(' ', '-').replace('’', '')] = rgbColors;
+  rgb[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] = rgbColors;
   let oklch = {};
-  oklch[colorName.toLowerCase().replace(' ', '-')] = oklchColors;
+  oklch[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] =
+    oklchColors;
   return {
     name: colorName,
     rgb: JSON.stringify(rgb, null, 2),
@@ -96,32 +97,23 @@ const genRanHex = (size) =>
   [...Array(size)]
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join('');
-function clampHexColorComponent(component) {
-  // Convert hex component to an integer
-  let value = parseInt(component, 16);
 
-  // Clamp the value between 0x50 and 0xC0
-  value = Math.max(0x50, Math.min(0xC0, value));
+function clampLuminance(hexColor, minLuminance = 0.5, maxLuminance = 1) {
+  // Convert hex color to OKLCH
+  const colorOKLCH = hex(hexColor).oklch();
 
-  // Convert back to a hex string, ensuring two digits
-  return value.toString(16).padStart(2, '0');
-}
-function clampHexColor(hexColor) {
-  // Remove the '#' if present
-  hexColor = hexColor.replace(/^#/, '');
+  // Clamp the luminance value
+  const clampedLuminance = Math.max(minLuminance, Math.min(maxLuminance, colorOKLCH.l));
 
-  // Extract the red, green, and blue components
-  let r = hexColor.substring(0, 2);
-  let g = hexColor.substring(2, 4);
-  let b = hexColor.substring(4, 6);
+  // Construct new OKLCH color with clamped luminance
+  const clampedColorOKLCH = oklch({
+    l: clampedLuminance,
+    c: colorOKLCH.c,
+    h: colorOKLCH.h,
+  });
 
-  // Clamp each component
-  r = clampHexColorComponent(r);
-  g = clampHexColorComponent(g);
-  b = clampHexColorComponent(b);
-
-  // Reassemble the clamped color components into a full hex color
-  return `#${r}${g}${b}`;
+  // Convert clamped OKLCH color back to hex
+  return clampedColorOKLCH.hex();
 }
 
 export default function Component() {
@@ -168,7 +160,7 @@ export default function Component() {
             className="flex-grow"
           />
           <Button
-            onClick={() => setInputColor(clampHexColor(genRanHex(6)))}
+            onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
             className="w-full sm:w-auto"
           >
             Random
@@ -255,3 +247,82 @@ export default function Component() {
     </div>
   );
 }
+
+// Taken from https://github.com/tjaska/umlaut-escape/blob/master/src/index.ts
+
+function escapeUmlaut(input: string) {
+  return input
+    .split("")
+    .map((character) => specialCharMap[character] || character)
+    .join("");
+}
+
+const specialCharMap: Record<string, string> = {
+  Ÿ: "Y",
+  ÿ: "y",
+  Ü: "U",
+  ü: "u",
+  Ö: "O",
+  ö: "o",
+  Ï: "I",
+  ï: "i",
+  Ë: "E",
+  ë: "e",
+  Ä: "A",
+  ä: "a",
+  À: "A",
+  Á: "A",
+  Â: "A",
+  Ã: "A",
+  Å: "A",
+  Æ: "AE",
+  Ç: "C",
+  È: "E",
+  É: "E",
+  Ê: "E",
+  Ì: "I",
+  Í: "I",
+  Î: "I",
+  Ð: "D",
+  Ñ: "N",
+  Ò: "O",
+  Ó: "O",
+  Ô: "O",
+  Õ: "O",
+  Ø: "O",
+  Œ: "OE",
+  Ù: "U",
+  Ú: "U",
+  Û: "U",
+  Ý: "Y",
+  Þ: "TH",
+  à: "a",
+  á: "a",
+  â: "a",
+  ã: "a",
+  å: "a",
+  æ: "ae",
+  ç: "c",
+  è: "e",
+  é: "e",
+  ê: "e",
+  ì: "i",
+  í: "i",
+  ð: "d",
+  ñ: "n",
+  ò: "o",
+  ó: "o",
+  ô: "o",
+  õ: "o",
+  ø: "o",
+  œ: "oe",
+  ù: "u",
+  ú: "u",
+  û: "u",
+  ý: "y",
+  þ: "th",
+  Š: "S",
+  š: "s",
+  Č: "C",
+  č: "c",
+};
