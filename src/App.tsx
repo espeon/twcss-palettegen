@@ -206,14 +206,14 @@ export default function Component() {
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
                     key={shade}
-                    className="flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center first:rounded-t-xl last:rounded-b-xl sm:first:rounded-l-xl sm:first:rounded-tr-none sm:last:rounded-r-xl sm:last:rounded-bl-none"
+                    className="flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center first:rounded-t-xl last:rounded-b-xl lg:first:rounded-l-xl lg:first:rounded-tr-none lg:last:rounded-r-xl lg:last:rounded-bl-none"
                     style={{ backgroundColor: formatRgb(color) }}
                   >
                     <button
                       className={`absolute inset-0 min-w-max w-full h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${wcagContrast('white', color) < 4.5
                           ? 'text-black'
                           : 'text-white'
-                        } text-xs sm:text-sm`}
+                        } text-xs sm:text-sm lg:text-xs xl:text-sm`}
                     >
                       <span className="font-bold mb-1">{shade}</span>
                       <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
