@@ -3,7 +3,7 @@ import { oklch, formatRgb, formatHex, wcagContrast, serializeHex, parseHex, conv
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { ClipboardCopyIcon } from 'lucide-react';
+import { ClipboardCopyIcon, Share } from 'lucide-react';
 
 const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
@@ -121,7 +121,10 @@ function clampLuminance(hexColor, minLuminance = 0.3, maxLuminance = 0.8) {
 }
 
 export default function Component() {
-  const [inputColor, setInputColor] = useState('#' + genRanHex(6));
+  const searchParams = new URLSearchParams(document.location.search);
+  const currentPath = document.location.origin + document.location.pathname
+  console.log("search params" + searchParams, document.location.origin + document.location.pathname)
+  const [inputColor, setInputColor] = useState(searchParams.get('hex') ?? '#' + genRanHex(6));
   const [palette, setPalette] = useState(null);
   const [tailwindJSON, setTailwindJSON] = useState({
     name: '',
@@ -155,25 +158,38 @@ export default function Component() {
   return (
     <div className="min-h-screen min-w-screen w-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0">
+          <div className="flex-grow flex items-center justify-center">
+            {!inputColor.startsWith('#') && <div className="pr-0.5">#</div>}
           <Input
             type="text"
             value={inputColor}
             onChange={(e) => setInputColor(e.target.value)}
             placeholder="Enter color (e.g., #3b82f6)"
-            className="flex-grow"
+            className={`flex-grow rounded-xl dark:text-black ${!inputColor.startsWith('#') && "pl-1"}`}
           />
+            </div>
+          <div className="grid sm:flex grid-cols-2 space-x-5">
           <Button
+            variant="secondary"
             onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
-            className="w-full sm:w-auto"
+            className="ml-5 rounded-xl px-6"
           >
             Random
           </Button>
+          <Button
+            className="rounded-xl aspect-square p-0"
+            // TODO: use an actual JS 'URL' for this
+            onClick={() => copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""))}
+            >
+            <Share className="h-4 w-4" />
+          </Button>
+          </div>
         </div>
         {palette ? (
           <>
             <div className="w-full h-[30vh] sm:h-[20vh] md:h-[25vh] rounded-lg overflow-hidden shadow-lg">
-              <div className="flex h-full">
+              <div className="flex h-full flex-col lg:flex-row">
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
                     key={shade}
@@ -181,7 +197,7 @@ export default function Component() {
                     style={{ backgroundColor: formatRgb(color) }}
                   >
                     <button
-                      className={`absolute inset-0 w-max h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${
+                      className={`absolute inset-0 min-w-max w-full h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${
                         wcagContrast('white', color) < 5
                           ? 'text-black'
                           : 'text-white'
@@ -203,7 +219,7 @@ export default function Component() {
             </div>
             <div className="border rounded-lg shadow-lg p-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">Tailwind CSS JSON</h3>
+                <h3 className="text-lg font-semibold">TailwindCSS JSON</h3>
                 <div className="text-sm text-gray-600">
                   Color Name: {tailwindJSON.name || 'Loading...'}
                 </div>
