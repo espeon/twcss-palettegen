@@ -265,12 +265,12 @@ export default function Component() {
             <Button
               variant="secondary"
               onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
-              className="md:ml-5 rounded-xl px-6 flex-grow bg-[color:var(--color-500)] focus:bg-[color:var(--color-400)] dark:bg-[color:var(--color-700)]"
+              className="md:ml-5 rounded-xl px-6 flex-grow bg-[color:var(--color-500)] focus:bg-[color:var(--color-400)] focus:dark:bg-[color:var(--color-600)] dark:bg-[color:var(--color-700)]"
             >
               Random
             </Button>
             <Button
-              className={`rounded-xl aspect-square p-0 bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
+              className={`rounded-xl aspect-square p-0 bg-blue-500 focus:bg-blue-400 dark:bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
               // TODO: use an actual JS 'URL' for this
               onClick={() => { copyToClipboard(currentPath + "?hex=" + inputColor.replace("#", "")); setShareUrlIsGreen(true) }}
             >
