@@ -18,6 +18,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Figtree', 'ui-sans-serif', 'system-ui']
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

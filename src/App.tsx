@@ -9,7 +9,7 @@ const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 console.info(
   '%c hello 👋 from nashville %c',
-  'font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji"; background-color: rgb(0, 9, 26); color: white; font-size: 2em;', 'color: unset'
+  'font-family: Figtree, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji"; background-color: rgb(0, 9, 26); color: white; font-size: 2em;', 'color: unset'
 );
 
 console.info(
@@ -19,9 +19,9 @@ console.info(
 
 async function getColorName(hex) {
   try {
-    if(hex.replace('#', '').length % 3 != 0 && hex.replace('#', '').length !== 8)
+    if (hex.replace('#', '').length % 3 != 0 && hex.replace('#', '').length !== 8)
       return "Invalid color"
-    if(hex.replace('#', '').length == 8)
+    if (hex.replace('#', '').length == 8)
       hex = hex.slice(0, -2);
     const response = await fetch(
       `https://api.color.pizza/v1/${hex.replace('#', '')}`
@@ -38,7 +38,7 @@ function generatePalette(baseColor) {
   let base;
   try {
     base = oklch(baseColor);
-    if(base.h === undefined){
+    if (base.h === undefined) {
       base.h = 0
     }
   } catch (error) {
@@ -61,7 +61,7 @@ function generatePalette(baseColor) {
     } else if (shade > 500) {
       color = oklch({
         l: base.l * ((1000 - shade) / 440) * .89,
-        c: base.c + (0-base.c) * (shade / 750) * .2,
+        c: base.c + (0 - base.c) * (shade / 750) * .2,
         h: base.h,
       });
     } else {
@@ -77,7 +77,7 @@ function generateTailwindJSON(palette, colorName = 'color') {
   const oklchColors = {};
   Object.entries(palette).forEach(([shade, color]) => {
 
-    if(color.h === undefined){
+    if (color.h === undefined) {
       color.h = 69
     }
     rgbColors[shade] = formatHex(color);
@@ -130,7 +130,7 @@ export default function Component() {
   const [palette, setPalette] = useState(null);
   const [tailwindJSON, setTailwindJSON] = useState({
     name: '',
-    base: {mode: 'oklch', l: 0.6991092307279034, c: 0.16593864178819528, h: 56.58153717382657},
+    base: { mode: 'oklch', l: 0.6991092307279034, c: 0.16593864178819528, h: 56.58153717382657 },
     rgb: '',
     oklch: '',
   });
@@ -141,7 +141,7 @@ export default function Component() {
 
   useEffect(() => {
     // wait 2.5 seconds and change back to false
-    setTimeout(() => {setShareUrlIsGreen(false); setRgbGreen(false); setOklchGreen(false)}, 1000 * 1.5)
+    setTimeout(() => { setShareUrlIsGreen(false); setRgbGreen(false); setOklchGreen(false) }, 1000 * 1.5)
   }, [shareUrlIsGreen, rgbGreen, oklchGreen]);
 
   useEffect(() => {
@@ -168,39 +168,40 @@ export default function Component() {
   };
 
   return (
-    <div className="min-h-screen min-w-screen w-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0">
+        <span className="text-3xl">twpal</span>
+        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0">
           <div className="flex-grow flex items-center justify-center">
             {!inputColor.startsWith('#') && <div className="pr-0.5 pl-1">#</div>}
-          <Input
-            type="text"
-            value={inputColor}
-            onChange={(e) => setInputColor(e.target.value)}
-            placeholder="Enter color (e.g., #3b82f6)"
-            className={`flex-grow rounded-xl dark:text-black ${!inputColor.startsWith('#') && "pl-1"}`}
-          />
-            </div>
-          <div className="grid sm:flex grid-cols-2 space-x-5">
-          <Button
-            variant="secondary"
-            onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
-            className="ml-5 rounded-xl px-6"
-          >
-            Random
-          </Button>
-          <Button
-            className={`rounded-xl aspect-square p-0 bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
-            // TODO: use an actual JS 'URL' for this
-            onClick={() => {copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""));setShareUrlIsGreen(true)}}
+            <Input
+              type="text"
+              value={inputColor}
+              onChange={(e) => setInputColor(e.target.value)}
+              placeholder="Enter color (e.g., #3b82f6)"
+              className={`flex-grow rounded-xl dark:text-black ${!inputColor.startsWith('#') && "pl-1"}`}
+            />
+          </div>
+          <div className="flex space-x-4">
+            <Button
+              variant="secondary"
+              onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
+              className="md:ml-5 rounded-xl px-6 flex-grow"
             >
-            <Share className="h-4 w-4" />
-          </Button>
+              Random
+            </Button>
+            <Button
+              className={`rounded-xl aspect-square p-0 bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
+              // TODO: use an actual JS 'URL' for this
+              onClick={() => { copyToClipboard(currentPath + "?hex=" + inputColor.replace("#", "")); setShareUrlIsGreen(true) }}
+            >
+              <Share className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         {palette ? (
           <>
-            <div className="w-full h-[30vh] sm:h-[20vh] md:h-[25vh] rounded-lg overflow-hidden shadow-lg">
+            <div className="w-full h-[50rem] lg:h-[25vh] rounded-lg overflow-clip shadow-lg">
               <div className="flex h-full flex-col lg:flex-row">
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
@@ -209,21 +210,31 @@ export default function Component() {
                     style={{ backgroundColor: formatRgb(color) }}
                   >
                     <button
-                      className={`absolute inset-0 min-w-max w-full h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${
-                        wcagContrast('white', color) < 5
+                      className={`absolute inset-0 min-w-max w-full h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${wcagContrast('white', color) < 4.5
                           ? 'text-black'
                           : 'text-white'
-                      } text-xs sm:text-sm`}
-                      onClick={() => copyToClipboard(formatRgb(color))}
+                        } text-xs sm:text-sm`}
                     >
                       <span className="font-bold mb-1">{shade}</span>
-                      <span className="mb-1 text-center px-2">
+                      <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
+                          ? 'text-black hover:text-purple-600'
+                          : 'text-white hover:text-blue-300'
+                        }`} onClick={() => copyToClipboard(`oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})`)}>
                         OKLCH: {color.l.toFixed(2)}, {color.c.toFixed(2)},{' '}
                         {color.h.toFixed(2)}
                       </span>
-                      <span className="mb-1">RGB: {formatRgb(color)}</span>
-                      <span> {formatHex(color)} </span>
-                      <ClipboardCopyIcon className="w-4 h-4 mt-1" />
+                      <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
+                          ? 'text-black hover:text-purple-600'
+                          : 'text-white hover:text-blue-300'
+                        }`} onClick={() => copyToClipboard(formatRgb(color))} >RGB: {formatRgb(color)}</span>
+                      <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
+                          ? 'text-black hover:text-purple-600'
+                          : 'text-white hover:text-blue-300'
+                        }`} onClick={() => copyToClipboard(formatHex(color))}> {formatHex(color)} </span>
+                      <ClipboardCopyIcon className={`w-4 h-4 mb-1 text-center transition-all duration-300 ease-in-out hover:scale-110 ${wcagContrast('white', color) < 4.5
+                          ? 'text-black hover:text-purple-600'
+                          : 'text-white hover:text-blue-300'
+                        }`} onClick={() => copyToClipboard(formatRgb(color))}  />
                     </button>
                   </div>
                 ))}
@@ -232,8 +243,8 @@ export default function Component() {
             <div className="border rounded-xl shadow-lg p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">TailwindCSS JSON</h3>
-                <div className="text-sm" style={{color:`oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})`}}>
-                <a href={`https://github.com/meodai/color-names`} target="_blank" rel="noopener noreferrer" className="text-blue-400">Color name: </a>
+                <div className="text-sm" style={{ color: `oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})` }}>
+                  <a href={`https://github.com/meodai/color-names`} target="_blank" rel="noopener noreferrer" className="text-blue-400">Color name: </a>
                   {tailwindJSON.name || 'Loading...'}
                 </div>
               </div>
@@ -248,7 +259,7 @@ export default function Component() {
                       variant="outline"
                       size="icon"
                       className={`absolute top-2 right-2 rounded-[0.50rem] ${rgbGreen && "bg-green-500 hover:bg-green-300"}`}
-                      onClick={() => {copyToClipboard(tailwindJSON.rgb);setRgbGreen(true)}}
+                      onClick={() => { copyToClipboard(tailwindJSON.rgb); setRgbGreen(true) }}
                     >
                       <ClipboardCopyIcon className="w-4 h-4" />
                     </Button>
@@ -264,7 +275,7 @@ export default function Component() {
                       variant="outline"
                       size="icon"
                       className={`absolute top-2 right-2 rounded-[0.50rem] ${oklchGreen && "bg-green-500 hover:bg-green-300"}`}
-                      onClick={() => {copyToClipboard(tailwindJSON.oklch);setOklchGreen(true)}}
+                      onClick={() => { copyToClipboard(tailwindJSON.oklch); setOklchGreen(true) }}
                     >
                       <ClipboardCopyIcon className="w-4 h-4" />
                     </Button>
