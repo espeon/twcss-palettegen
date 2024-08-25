@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class'],
   content: [
     './index.html',
     './pages/**/*.{ts,tsx}',
@@ -22,6 +21,19 @@ module.exports = {
         sans: ['Figtree', 'ui-sans-serif', 'system-ui']
       },
       colors: {
+        "blissful-berry": {
+          "50": "oklch(0.949 0.024 338.484)",
+          "100": "oklch(0.897 0.048 338.484)",
+          "200": "oklch(0.794 0.097 338.484)",
+          "300": "oklch(0.691 0.145 338.484)",
+          "400": "oklch(0.588 0.193 338.484)",
+          "500": "oklch(0.485 0.193 338.484)",
+          "600": "oklch(0.393 0.162 338.484)",
+          "700": "oklch(0.294 0.157 338.484)",
+          "800": "oklch(0.196 0.152 338.484)",
+          "900": "oklch(0.098 0.147 338.484)",
+          "950": "oklch(0.049 0.144 338.484)"
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

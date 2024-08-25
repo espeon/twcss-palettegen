@@ -72,6 +72,8 @@ function generatePalette(baseColor) {
   return palette;
 }
 
+const formatOklch = (color) => `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)} ${color.h.toFixed(3)})`;
+
 function generateTailwindJSON(palette, colorName = 'color') {
   const rgbColors = {};
   const oklchColors = {};
@@ -81,9 +83,7 @@ function generateTailwindJSON(palette, colorName = 'color') {
       color.h = 69
     }
     rgbColors[shade] = formatHex(color);
-    oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(
-      3
-    )} ${color.h.toFixed(3)})`;
+    oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)} ${color.h.toFixed(3)})`;
   });
   let rgb = {};
   rgb[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] = rgbColors;
@@ -127,7 +127,74 @@ export default function Component() {
   const searchParams = new URLSearchParams(document.location.search);
   const currentPath = document.location.origin + document.location.pathname
   const [inputColor, setInputColor] = useState(searchParams.get('hex') ?? '#' + genRanHex(6));
-  const [palette, setPalette] = useState(null);
+  const [palette, setPalette] = useState({
+    "50": {
+        "l": 0.9626753536916026,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "100": {
+        "l": 0.925350707383205,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "200": {
+        "l": 0.8507014147664101,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "300": {
+        "l": 0.7760521221496152,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "400": {
+        "l": 0.7014028295328203,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "500": {
+        "mode": "oklch",
+        "l": 0.6267535369160253,
+        "c": 0,
+        "h": 0
+    },
+    "600": {
+        "l": 0.5071005889593296,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "700": {
+        "l": 0.38032544171949717,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "800": {
+        "l": 0.2535502944796648,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "900": {
+        "l": 0.1267751472398324,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    },
+    "950": {
+        "l": 0.0633875736199162,
+        "c": 0,
+        "h": 0,
+        "mode": "oklch"
+    }
+});
   const [tailwindJSON, setTailwindJSON] = useState({
     name: '',
     base: { mode: 'oklch', l: 0.6991092307279034, c: 0.16593864178819528, h: 56.58153717382657 },
@@ -168,9 +235,21 @@ export default function Component() {
   };
 
   return (
-    <div className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4">
+    <div style={{
+      "--color-50": formatOklch(palette[50]),
+      "--color-100": formatOklch(palette[100]),
+      "--color-200": formatOklch(palette[200]),
+      "--color-300": formatOklch(palette[300]),
+      "--color-400": formatOklch(palette[400]),
+      "--color-500": formatOklch(palette[500]),
+      "--color-600": formatOklch(palette[600]),
+      "--color-700": formatOklch(palette[700]),
+      "--color-800": formatOklch(palette[800]),
+      "--color-900": formatOklch(palette[900]),
+      "--color-950": formatOklch(palette[950])
+    } as React.CSSProperties} className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4 bg-[color:var(--color-50)] dark:bg-[color:var(--color-950)]">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
-        <span className="text-3xl">twpal</span>
+        <span className="text-3xl dark:text-[color:var(--color-200)] text-[color:var(--color-700)]">twpal</span>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0">
           <div className="flex-grow flex items-center justify-center">
             {!inputColor.startsWith('#') && <div className="pr-0.5 pl-1">#</div>}
@@ -179,14 +258,14 @@ export default function Component() {
               value={inputColor}
               onChange={(e) => setInputColor(e.target.value)}
               placeholder="Enter color (e.g., #3b82f6)"
-              className={`flex-grow rounded-xl dark:text-black ${!inputColor.startsWith('#') && "pl-1"}`}
+              className={`flex-grow rounded-xl ${!inputColor.startsWith('#') && "pl-1"}`}
             />
           </div>
           <div className="flex space-x-4">
             <Button
               variant="secondary"
               onClick={() => setInputColor(clampLuminance(genRanHex(6)))}
-              className="md:ml-5 rounded-xl px-6 flex-grow"
+              className="md:ml-5 rounded-xl px-6 flex-grow bg-[color:var(--color-500)] focus:bg-[color:var(--color-400)] dark:bg-[color:var(--color-700)]"
             >
               Random
             </Button>
@@ -202,7 +281,7 @@ export default function Component() {
         {palette ? (
           <>
             <div className="w-full h-[50rem] lg:h-[25vh] rounded-lg overflow-clip shadow-lg">
-              <div className="flex h-full flex-col lg:flex-row">
+              <div className="flex h-full flex-col lg:flex-row border-2 border-[color:var(--color-500)] bg-[color:var(--color-500)] rounded-xl">
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
                     key={shade}
@@ -211,36 +290,36 @@ export default function Component() {
                   >
                     <button
                       className={`absolute inset-0 min-w-max w-full h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-0 ${wcagContrast('white', color) < 4.5
-                          ? 'text-black'
-                          : 'text-white'
+                        ? 'text-black'
+                        : 'text-white'
                         } text-xs sm:text-sm lg:text-xs xl:text-sm`}
                     >
                       <span className="font-bold mb-1">{shade}</span>
                       <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
-                          ? 'text-black hover:text-purple-600'
-                          : 'text-white hover:text-blue-300'
+                        ? 'text-black hover:text-purple-600'
+                        : 'text-white hover:text-blue-300'
                         }`} onClick={() => copyToClipboard(`oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})`)}>
                         OKLCH: {color.l.toFixed(2)}, {color.c.toFixed(2)},{' '}
                         {color.h.toFixed(2)}
                       </span>
                       <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
-                          ? 'text-black hover:text-purple-600'
-                          : 'text-white hover:text-blue-300'
+                        ? 'text-black hover:text-purple-600'
+                        : 'text-white hover:text-blue-300'
                         }`} onClick={() => copyToClipboard(formatRgb(color))} >RGB: {formatRgb(color)}</span>
                       <span className={`mb-1 text-center transition-all duration-300 ease-in-out px-2 hover:font-bold ${wcagContrast('white', color) < 4.5
-                          ? 'text-black hover:text-purple-600'
-                          : 'text-white hover:text-blue-300'
+                        ? 'text-black hover:text-purple-600'
+                        : 'text-white hover:text-blue-300'
                         }`} onClick={() => copyToClipboard(formatHex(color))}> {formatHex(color)} </span>
                       <ClipboardCopyIcon className={`w-4 h-4 mb-1 text-center transition-all duration-300 ease-in-out hover:scale-110 ${wcagContrast('white', color) < 4.5
-                          ? 'text-black hover:text-purple-600'
-                          : 'text-white hover:text-blue-300'
-                        }`} onClick={() => copyToClipboard(formatRgb(color))}  />
+                        ? 'text-black hover:text-purple-600'
+                        : 'text-white hover:text-blue-300'
+                        }`} onClick={() => copyToClipboard(formatRgb(color))} />
                     </button>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="border rounded-xl shadow-lg p-4">
+            <div className="border border-[color:var(--color-500)] rounded-xl shadow-lg p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">TailwindCSS JSON</h3>
                 <div className="text-sm" style={{ color: `oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})` }}>
@@ -252,7 +331,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">RGB (Hex)</h4>
                   <div className="relative">
-                    <pre className="border p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border border-[color:var(--color-500)] p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
                       {tailwindJSON.rgb}
                     </pre>
                     <Button
@@ -268,7 +347,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">OKLCH</h4>
                   <div className="relative">
-                    <pre className="border p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border border-[color:var(--color-500)] p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
                       {tailwindJSON.oklch}
                     </pre>
                     <Button

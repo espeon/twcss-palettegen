@@ -78,3 +78,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+.color-50 {
+  color: var(--color-50);
+}
+.color-100 {
+  color: var(--color-100);
+}
+.color-200 {
+  color: var(--color-200);
+}
+.color-300 {
+  color: var(--color-300);
+}
+.color-400 {
+  color: var(--color-400);
+}
+.color-500 {
+  color: var(--color-500);
+}
+.color-600 {
+  color: var(--color-600);
+}
+.color-700 {
+  color: var(--color-700);
+}
+.color-800 {
+  color: var(--color-800);
+}
+.color-900 {
+  color: var(--color-900);
+}
+.color-950 {
+  color: var(--color-950);
+}
