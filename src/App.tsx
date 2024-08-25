@@ -3,9 +3,19 @@ import { oklch, formatRgb, formatHex, wcagContrast, serializeHex, parseHex, conv
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { ClipboardCopyIcon, Share } from 'lucide-react';
+import { AtSign, ClipboardCopyIcon, Dot, Headphones, Heart, HeartIcon, Music2, Share } from 'lucide-react';
 
 const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+
+console.info(
+  '%c hello 👋 from nashville %c',
+  'font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji"; background-color: rgb(0, 9, 26); color: white; font-size: 2em;', 'color: unset'
+);
+
+console.info(
+  '%c  (please hire me)%c',
+  'color: rgb(91, 201, 222)', 'color: unset'
+);
 
 async function getColorName(hex) {
   try {
@@ -29,9 +39,7 @@ function generatePalette(baseColor) {
   try {
     base = oklch(baseColor);
     if(base.h === undefined){
-      console.log("UNDEFINED HUE")
       base.h = 0
-      console.log(base.h)
     }
   } catch (error) {
     console.error("Error converting base color:", error);
@@ -53,7 +61,7 @@ function generatePalette(baseColor) {
     } else if (shade > 500) {
       color = oklch({
         l: base.l * ((1000 - shade) / 440) * .89,
-        c: base.c + (0-base.c) * (shade / 750) * .1,
+        c: base.c + (0-base.c) * (shade / 750) * .2,
         h: base.h,
       });
     } else {
@@ -61,7 +69,6 @@ function generatePalette(baseColor) {
     }
     palette[shade] = color;
   });
-  console.log(palette)
   return palette;
 }
 
@@ -69,11 +76,9 @@ function generateTailwindJSON(palette, colorName = 'color') {
   const rgbColors = {};
   const oklchColors = {};
   Object.entries(palette).forEach(([shade, color]) => {
-    console.log(shade, color)
+
     if(color.h === undefined){
-      console.log("UNDEFINED HUE")
       color.h = 69
-      console.log(hue)
     }
     rgbColors[shade] = formatHex(color);
     oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(
@@ -100,9 +105,7 @@ const genRanHex = (size) =>
 function clampLuminance(hexColor, minLuminance = 0.3, maxLuminance = 0.8) {
   // Convert hex color to OKLCH
   const colore = parseHex(hexColor)
-  console.log("parsed hex", colore)
   const colorOKLCH = oklch(colore)
-  console.log("oklch", colorOKLCH)
 
   // Clamp the luminance value
   const clampedLuminance = Math.max(minLuminance, Math.min(maxLuminance, colorOKLCH.l));
@@ -122,7 +125,6 @@ function clampLuminance(hexColor, minLuminance = 0.3, maxLuminance = 0.8) {
 export default function Component() {
   const searchParams = new URLSearchParams(document.location.search);
   const currentPath = document.location.origin + document.location.pathname
-  console.log("search params" + searchParams, document.location.origin + document.location.pathname)
   const [inputColor, setInputColor] = useState(searchParams.get('hex') ?? '#' + genRanHex(6));
   const [palette, setPalette] = useState(null);
   const [tailwindJSON, setTailwindJSON] = useState({
@@ -200,7 +202,7 @@ export default function Component() {
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
                     key={shade}
-                    className="flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center"
+                    className="flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center first:rounded-t-xl last:rounded-b-xl sm:first:rounded-l-xl sm:first:rounded-tr-none sm:last:rounded-r-xl sm:last:rounded-bl-none"
                     style={{ backgroundColor: formatRgb(color) }}
                   >
                     <button
@@ -270,6 +272,7 @@ export default function Component() {
         ) : (
           <div className="h-[30vh] sm:h-[20vh] md:h-[25vh]" />
         )}
+        <div>made with <HeartIcon className="inline text-red-500 h-5 mb-0.5" /> and <a href="https://last.fm/kanb"><Music2 className="inline text-slate-500 h-5 mb-0.5" /></a> by nat <AtSign className='inline h-5 mb-0.5 text-blue-500' /> <a className="text-blue-300" href="https://natalie.sh?ref=twpal">natalie.sh</a></div>
       </div>
     </div>
   );
