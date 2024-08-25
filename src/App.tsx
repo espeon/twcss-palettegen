@@ -141,7 +141,7 @@ export default function Component() {
 
   useEffect(() => {
     // wait 2.5 seconds and change back to false
-    setTimeout(() => {setShareUrlIsGreen(false); setRgbGreen(false); setOklchGreen(false)}, 1000 * 2.5)
+    setTimeout(() => {setShareUrlIsGreen(false); setRgbGreen(false); setOklchGreen(false)}, 1000 * 1.5)
   }, [shareUrlIsGreen, rgbGreen, oklchGreen]);
 
   useEffect(() => {
