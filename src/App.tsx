@@ -41,14 +41,13 @@ function generatePalette(baseColor) {
   if (!base) return null;
 
   const palette = {};
-  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
   SHADES.forEach((shade) => {
     let color;
     if (shade < 500) {
       color = oklch({
-        l: base.l + (1 - base.l) * ((500 - shade) / 470),
-        c: base.c * (shade / 1000),
+        l: base.l + (1 - base.l) * ((500 - shade) / 500),
+        c: base.c * (shade / 400),
         h: base.h,
       });
     } else if (shade > 500) {
@@ -131,7 +130,13 @@ export default function Component() {
     rgb: '',
     oklch: '',
   });
+  const [shareUrlIsGreen, setShareUrlIsGreen] = useState(false)
   const { toast } = useToast();
+
+  useEffect(() => {
+    // wait 2.5 seconds and change back to false
+    setTimeout(() => setShareUrlIsGreen(false), 1000 * 2.5)
+  }, [shareUrlIsGreen]);
 
   useEffect(() => {
     async function updatePalette() {
@@ -145,8 +150,10 @@ export default function Component() {
     updatePalette();
   }, [inputColor]);
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text, setShareUrl = false) => {
+
     navigator.clipboard.writeText(text).then(() => {
+      if(setShareUrl) setShareUrlIsGreen(true);
       toast({
         title: 'Copied!',
         description: `${text} has been copied to clipboard.`,
@@ -178,9 +185,9 @@ export default function Component() {
             Random
           </Button>
           <Button
-            className="rounded-xl aspect-square p-0"
+            className={`rounded-xl aspect-square p-0 bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
             // TODO: use an actual JS 'URL' for this
-            onClick={() => copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""))}
+            onClick={() => copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""), true)}
             >
             <Share className="h-4 w-4" />
           </Button>
@@ -217,7 +224,7 @@ export default function Component() {
                 ))}
               </div>
             </div>
-            <div className="border rounded-lg shadow-lg p-4">
+            <div className="border rounded-xl shadow-lg p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">TailwindCSS JSON</h3>
                 <div className="text-sm text-gray-600">
@@ -228,7 +235,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">RGB (Hex)</h4>
                   <div className="relative">
-                    <pre className="border p-4 rounded-md overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
                       {tailwindJSON.rgb}
                     </pre>
                     <Button
@@ -244,7 +251,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">OKLCH</h4>
                   <div className="relative">
-                    <pre className="border p-4 rounded-md overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
                       {tailwindJSON.oklch}
                     </pre>
                     <Button
