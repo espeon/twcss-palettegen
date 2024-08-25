@@ -160,7 +160,7 @@ export default function Component() {
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0">
           <div className="flex-grow flex items-center justify-center">
-            {!inputColor.startsWith('#') && <div className="pr-0.5">#</div>}
+            {!inputColor.startsWith('#') && <div className="pr-0.5 pl-1">#</div>}
           <Input
             type="text"
             value={inputColor}
