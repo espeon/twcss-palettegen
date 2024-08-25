@@ -92,6 +92,7 @@ function generateTailwindJSON(palette, colorName = 'color') {
     oklchColors;
   return {
     name: colorName,
+    base: palette[500],
     rgb: JSON.stringify(rgb, null, 2),
     oklch: JSON.stringify(oklch, null, 2),
   };
@@ -129,16 +130,19 @@ export default function Component() {
   const [palette, setPalette] = useState(null);
   const [tailwindJSON, setTailwindJSON] = useState({
     name: '',
+    base: {mode: 'oklch', l: 0.6991092307279034, c: 0.16593864178819528, h: 56.58153717382657},
     rgb: '',
     oklch: '',
   });
   const [shareUrlIsGreen, setShareUrlIsGreen] = useState(false)
+  const [rgbGreen, setRgbGreen] = useState(false)
+  const [oklchGreen, setOklchGreen] = useState(false)
   const { toast } = useToast();
 
   useEffect(() => {
     // wait 2.5 seconds and change back to false
-    setTimeout(() => setShareUrlIsGreen(false), 1000 * 2.5)
-  }, [shareUrlIsGreen]);
+    setTimeout(() => {setShareUrlIsGreen(false); setRgbGreen(false); setOklchGreen(false)}, 1000 * 2.5)
+  }, [shareUrlIsGreen, setRgbGreen, setOklchGreen]);
 
   useEffect(() => {
     async function updatePalette() {
@@ -152,10 +156,9 @@ export default function Component() {
     updatePalette();
   }, [inputColor]);
 
-  const copyToClipboard = (text, setShareUrl = false) => {
+  const copyToClipboard = (text) => {
 
     navigator.clipboard.writeText(text).then(() => {
-      if(setShareUrl) setShareUrlIsGreen(true);
       toast({
         title: 'Copied!',
         description: `${text} has been copied to clipboard.`,
@@ -189,7 +192,7 @@ export default function Component() {
           <Button
             className={`rounded-xl aspect-square p-0 bg-blue-300 ${shareUrlIsGreen && 'bg-green-500 hover:bg-green-300'}`}
             // TODO: use an actual JS 'URL' for this
-            onClick={() => copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""), true)}
+            onClick={() => {copyToClipboard(currentPath + "?hex="+ inputColor.replace("#", ""));setShareUrlIsGreen(true)}}
             >
             <Share className="h-4 w-4" />
           </Button>
@@ -229,11 +232,12 @@ export default function Component() {
             <div className="border rounded-xl shadow-lg p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">TailwindCSS JSON</h3>
-                <div className="text-sm text-gray-600">
-                  Color Name: {tailwindJSON.name || 'Loading...'}
+                <div className="text-sm" style={{color:`oklch(${tailwindJSON.base.l.toFixed(2)} ${tailwindJSON.base.c.toFixed(2)} ${tailwindJSON.base.h.toFixed(2)})`}}>
+                <a href={`https://github.com/meodai/color-names`} target="_blank" rel="noopener noreferrer" className="text-blue-400">Color name: </a>
+                  {tailwindJSON.name || 'Loading...'}
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4 rounded-3xl">
                 <div>
                   <h4 className="text-md font-semibold mb-2">RGB (Hex)</h4>
                   <div className="relative">
@@ -242,9 +246,9 @@ export default function Component() {
                     </pre>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(tailwindJSON.rgb)}
+                      size="icon"
+                      className={`absolute top-2 right-2 rounded-[0.50rem] ${rgbGreen && "bg-green-500 hover:bg-green-300"}`}
+                      onClick={() => {copyToClipboard(tailwindJSON.rgb);setRgbGreen(true)}}
                     >
                       <ClipboardCopyIcon className="w-4 h-4" />
                     </Button>
@@ -258,9 +262,9 @@ export default function Component() {
                     </pre>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(tailwindJSON.oklch)}
+                      size="icon"
+                      className={`absolute top-2 right-2 rounded-[0.50rem] ${oklchGreen && "bg-green-500 hover:bg-green-300"}`}
+                      onClick={() => {copyToClipboard(tailwindJSON.oklch);setOklchGreen(true)}}
                     >
                       <ClipboardCopyIcon className="w-4 h-4" />
                     </Button>
@@ -272,7 +276,7 @@ export default function Component() {
         ) : (
           <div className="h-[30vh] sm:h-[20vh] md:h-[25vh]" />
         )}
-        <div>made with <HeartIcon className="inline text-red-500 h-5 mb-0.5" /> and <a href="https://last.fm/kanb"><Music2 className="inline text-slate-500 h-5 mb-0.5" /></a> by nat <AtSign className='inline h-5 mb-0.5 text-blue-500' /> <a className="text-blue-300" href="https://natalie.sh?ref=twpal">natalie.sh</a></div>
+        <div>made with <HeartIcon className="inline text-red-500 h-5 mb-0.5" /> and <a href="https://last.fm/user/kanb"><Music2 className="inline text-slate-500 h-5 mb-0.5" /></a> by nat <AtSign className='inline h-5 mb-0.5 text-blue-500' /> <a className="text-blue-300" href="https://natalie.sh?ref=twpal">natalie.sh</a></div>
       </div>
     </div>
   );
