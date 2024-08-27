@@ -3,7 +3,7 @@ import { oklch, formatRgb, formatHex, wcagContrast, serializeHex, parseHex, conv
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { AtSign, ClipboardCopyIcon, Dot, Headphones, Heart, HeartIcon, Music2, Share } from 'lucide-react';
+import { AtSign, ClipboardCopyIcon, Dot, GithubIcon, Headphones, Heart, HeartIcon, Music2, Share } from 'lucide-react';
 
 const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
@@ -16,6 +16,75 @@ console.info(
   '%c  (please hire me)%c',
   'color: rgb(91, 201, 222)', 'color: unset'
 );
+
+const DEFAULT_COLORS = {
+  "50": {
+      "l": 0.9626753536916026,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "100": {
+      "l": 0.925350707383205,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "200": {
+      "l": 0.8507014147664101,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "300": {
+      "l": 0.7760521221496152,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "400": {
+      "l": 0.7014028295328203,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "500": {
+      "mode": "oklch",
+      "l": 0.6267535369160253,
+      "c": 0,
+      "h": 0
+  },
+  "600": {
+      "l": 0.5071005889593296,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "700": {
+      "l": 0.38032544171949717,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "800": {
+      "l": 0.2535502944796648,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "900": {
+      "l": 0.1267751472398324,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  },
+  "950": {
+      "l": 0.0633875736199162,
+      "c": 0,
+      "h": 0,
+      "mode": "oklch"
+  }
+}
 
 async function getColorName(hex) {
   try {
@@ -38,8 +107,8 @@ function generatePalette(baseColor) {
   let base;
   try {
     base = oklch(baseColor);
-    if (base.h === undefined) {
-      base.h = 0
+    if (base === undefined || base.h === undefined) {
+      throw Error("color undefined! Likely the input color is incorrect.")
     }
   } catch (error) {
     console.error("Error converting base color:", error);
@@ -77,25 +146,29 @@ const formatOklch = (color) => `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)
 function generateTailwindJSON(palette, colorName = 'color') {
   const rgbColors = {};
   const oklchColors = {};
-  Object.entries(palette).forEach(([shade, color]) => {
+  try {
+    Object.entries(palette).forEach(([shade, color]) => {
 
-    if (color.h === undefined) {
-      color.h = 69
-    }
-    rgbColors[shade] = formatHex(color);
-    oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)} ${color.h.toFixed(3)})`;
-  });
-  let rgb = {};
-  rgb[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] = rgbColors;
-  let oklch = {};
-  oklch[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] =
-    oklchColors;
-  return {
-    name: colorName,
-    base: palette[500],
-    rgb: JSON.stringify(rgb, null, 2),
-    oklch: JSON.stringify(oklch, null, 2),
-  };
+      if (color.h === undefined) {
+        color.h = 69
+      }
+      rgbColors[shade] = formatHex(color);
+      oklchColors[shade] = `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)} ${color.h.toFixed(3)})`;
+    });
+    let rgb = {};
+    rgb[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] = rgbColors;
+    let oklch = {};
+    oklch[escapeUmlaut(colorName.toLowerCase().replace(/ /g, '-').replace(/’/g, ''))] =
+      oklchColors;
+    return {
+      name: colorName,
+      base: palette[500],
+      rgb: JSON.stringify(rgb, null, 2),
+      oklch: JSON.stringify(oklch, null, 2),
+    };
+  } catch {
+    console.error("Error converting to TWCSS Json. Likely an invalid color was entered.")
+  }
 }
 
 const genRanHex = (size) =>
@@ -123,78 +196,14 @@ function clampLuminance(hexColor, minLuminance = 0.3, maxLuminance = 0.8) {
   return formatHex(clampedColorOKLCH);
 }
 
+
 export default function Component() {
-  const searchParams = new URLSearchParams(document.location.search);
   const currentPath = document.location.origin + document.location.pathname
-  const [inputColor, setInputColor] = useState(searchParams.get('hex') ?? '#' + genRanHex(6));
-  const [palette, setPalette] = useState({
-    "50": {
-        "l": 0.9626753536916026,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "100": {
-        "l": 0.925350707383205,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "200": {
-        "l": 0.8507014147664101,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "300": {
-        "l": 0.7760521221496152,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "400": {
-        "l": 0.7014028295328203,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "500": {
-        "mode": "oklch",
-        "l": 0.6267535369160253,
-        "c": 0,
-        "h": 0
-    },
-    "600": {
-        "l": 0.5071005889593296,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "700": {
-        "l": 0.38032544171949717,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "800": {
-        "l": 0.2535502944796648,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "900": {
-        "l": 0.1267751472398324,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    },
-    "950": {
-        "l": 0.0633875736199162,
-        "c": 0,
-        "h": 0,
-        "mode": "oklch"
-    }
-});
+  const [query, updateQuery] = useQuery();
+  const [inputColor, setInputColor] = useState(query.get("hex") ?? '#' + genRanHex(6));
+  const [currentColor, setCurrentColor] = useState(query.get("hex") ?? '#' + genRanHex(6));
+  const [palette, setPalette] = useState(DEFAULT_COLORS);
+  const [error, setError] = useState("");
   const [tailwindJSON, setTailwindJSON] = useState({
     name: '',
     base: { mode: 'oklch', l: 0.6991092307279034, c: 0.16593864178819528, h: 56.58153717382657 },
@@ -213,14 +222,37 @@ export default function Component() {
 
   useEffect(() => {
     async function updatePalette() {
-      const newPalette = generatePalette(inputColor);
+      const newPalette = generatePalette(currentColor);
+      if (newPalette instanceof String){console.log("fuck"); return setError(newPalette)}
       setPalette(newPalette);
       if (newPalette) {
-        const colorName = await getColorName(inputColor);
+        const colorName = await getColorName(currentColor);
         setTailwindJSON(generateTailwindJSON(newPalette, colorName));
       }
     }
     updatePalette();
+  }, [currentColor]);
+
+  useEffect(() => {
+    if (query.get("cause") == "popState") {
+      let hex = query.get("hex")
+      if(hex.length == 3 || hex.length == 6) {
+      setCurrentColor(hex);
+      setInputColor(hex)
+      }
+    }
+  }, [query]);
+
+  useEffect(() => {
+    if(inputColor.replace("#", "").length == 3 || inputColor.replace("#", "").length == 6) {
+      if(currentColor !== inputColor) {
+        updateQuery({hex:inputColor.replace("#", "")})
+        window.history.replaceState({ fromHistory: false }, '', `?hex=${inputColor.replace("#", "")}`);
+      }
+      setCurrentColor(inputColor) 
+    } else {
+      console.log("ball")
+    }
   }, [inputColor]);
 
   const copyToClipboard = (text) => {
@@ -235,19 +267,29 @@ export default function Component() {
   };
 
   return (
-    <div style={{
-      "--color-50": formatOklch(palette[50]),
-      "--color-100": formatOklch(palette[100]),
-      "--color-200": formatOklch(palette[200]),
-      "--color-300": formatOklch(palette[300]),
-      "--color-400": formatOklch(palette[400]),
-      "--color-500": formatOklch(palette[500]),
-      "--color-600": formatOklch(palette[600]),
-      "--color-700": formatOklch(palette[700]),
-      "--color-800": formatOklch(palette[800]),
-      "--color-900": formatOklch(palette[900]),
-      "--color-950": formatOklch(palette[950])
-    } as React.CSSProperties} className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4 bg-[color:var(--color-50)] dark:bg-[color:var(--color-950)]">
+    <div style={palette ? {
+      "--color-50": formatOklch(palette[50] ?? DEFAULT_COLORS[50]),
+      "--color-100": formatOklch(palette[100] ?? DEFAULT_COLORS[100]),
+      "--color-200": formatOklch(palette[200] ?? DEFAULT_COLORS[200]),
+      "--color-300": formatOklch(palette[300] ?? DEFAULT_COLORS[300]),
+      "--color-400": formatOklch(palette[400] ?? DEFAULT_COLORS[400]),
+      "--color-500": formatOklch(palette[500] ?? DEFAULT_COLORS[500]),
+      "--color-600": formatOklch(palette[600] ?? DEFAULT_COLORS[600]),
+      "--color-700": formatOklch(palette[700] ?? DEFAULT_COLORS[700]),
+      "--color-800": formatOklch(palette[800] ?? DEFAULT_COLORS[800]),
+      "--color-900": formatOklch(palette[900] ?? DEFAULT_COLORS[900]),
+      "--color-950": formatOklch(palette[950] ?? DEFAULT_COLORS[950])
+    } as React.CSSProperties : {      "--color-50": formatOklch( DEFAULT_COLORS[50]),
+    "--color-100": formatOklch(DEFAULT_COLORS[100]),
+    "--color-200": formatOklch(DEFAULT_COLORS[200]),
+    "--color-300": formatOklch(DEFAULT_COLORS[300]),
+    "--color-400": formatOklch(DEFAULT_COLORS[400]),
+    "--color-500": formatOklch(DEFAULT_COLORS[500]),
+    "--color-600": formatOklch(DEFAULT_COLORS[600]),
+    "--color-700": formatOklch(DEFAULT_COLORS[700]),
+    "--color-800": formatOklch(DEFAULT_COLORS[800]),
+    "--color-900": formatOklch(DEFAULT_COLORS[900]),
+    "--color-950": formatOklch(DEFAULT_COLORS[950])} as React.CSSProperties} className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4 bg-[color:var(--color-50)] dark:bg-[color:var(--color-950)]">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
         <span className="text-3xl dark:text-[color:var(--color-200)] text-[color:var(--color-700)]">twpal</span>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0">
@@ -285,7 +327,7 @@ export default function Component() {
                 {Object.entries(palette).map(([shade, color]) => (
                   <div
                     key={shade}
-                    className="flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center first:rounded-t-xl last:rounded-b-xl lg:first:rounded-l-xl lg:first:rounded-tr-none lg:last:rounded-r-xl lg:last:rounded-bl-none"
+                    className={`flex-1 relative group transition-all duration-300 ease-in-out hover:flex-[2] items-center justify-center first:rounded-t-xl last:rounded-b-xl lg:first:rounded-l-xl lg:first:rounded-tr-none lg:last:rounded-r-xl lg:last:rounded-bl-none`}
                     style={{ backgroundColor: formatRgb(color) }}
                   >
                     <button
@@ -366,12 +408,44 @@ export default function Component() {
         ) : (
           <div className="h-[30vh] sm:h-[20vh] md:h-[25vh]" />
         )}
-        <div>made with <HeartIcon className="inline text-red-500 h-5 mb-0.5" /> and <a href="https://last.fm/user/kanb"><Music2 className="inline text-slate-500 h-5 mb-0.5" /></a> by nat <AtSign className='inline h-5 mb-0.5 text-blue-500' /> <a className="text-blue-300" href="https://natalie.sh?ref=twpal">natalie.sh</a></div>
+        <div>made with 
+          <HeartIcon className="inline text-red-500 h-5 mb-0.5" /> 
+          and <a href="https://last.fm/user/kanb"><Music2 className="inline text-slate-500 h-5 mb-0.5" /></a> 
+          by nat <AtSign className='inline h-5 mb-0.5 text-blue-500' /> 
+          <a className="text-blue-300" href="https://natalie.sh?ref=twpal">natalie.sh</a> - <a href="https://github.com/espeon/twcss-palettegen"><GithubIcon  className="inline text-slate-500 h-5 mb-0.5" /></a></div>
       </div>
     </div>
   );
 }
 
+const useQuery = () => {
+  const [query, setQuery] = useState(new URLSearchParams(window.location.search));
+
+  const updateQuery = (newParams) => {
+    const newQuery = new URLSearchParams(newParams);
+    window.history.pushState({}, '', `?${newQuery.toString()}`);
+    setQuery(newQuery);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      let q = new URLSearchParams(window.location.search);
+      q.set("cause", "popState")
+      setQuery(q);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  return [query, updateQuery];
+};
+
+const Github = () => { return <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+}
 // Taken from https://github.com/tjaska/umlaut-escape/blob/master/src/index.ts
 
 function escapeUmlaut(input: string) {
@@ -390,6 +464,7 @@ const specialCharMap: Record<string, string> = {
   ö: "o",
   Ï: "I",
   ï: "i",
+  ǐ: "i",
   Ë: "E",
   ë: "e",
   Ä: "A",
