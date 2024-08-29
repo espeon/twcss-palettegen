@@ -289,7 +289,7 @@ export default function Component() {
     "--color-700": formatOklch(DEFAULT_COLORS[700]),
     "--color-800": formatOklch(DEFAULT_COLORS[800]),
     "--color-900": formatOklch(DEFAULT_COLORS[900]),
-    "--color-950": formatOklch(DEFAULT_COLORS[950])} as React.CSSProperties} className="min-h-screen max-w-screen flex flex-col items-center justify-center p-4 bg-[color:var(--color-50)] dark:bg-[color:var(--color-950)]">
+    "--color-950": formatOklch(DEFAULT_COLORS[950])} as React.CSSProperties} className="min-h-screen max-w-screen overflow-x-visible flex flex-col items-center justify-center p-4 bg-[color:var(--color-50)] dark:bg-[color:var(--color-950)]">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
         <span className="text-3xl dark:text-[color:var(--color-200)] text-[color:var(--color-700)]">twpal</span>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0">
@@ -373,7 +373,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">RGB (Hex)</h4>
                   <div className="relative">
-                    <pre className="border border-[color:var(--color-500)] p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border text-xs md:text-sm border-[color:var(--color-500)] p-4 rounded-xl overflow-x-auto text-sm h-full overflow-y-auto">
                       {tailwindJSON.rgb}
                     </pre>
                     <Button
@@ -389,7 +389,7 @@ export default function Component() {
                 <div>
                   <h4 className="text-md font-semibold mb-2">OKLCH</h4>
                   <div className="relative">
-                    <pre className="border border-[color:var(--color-500)] p-4 rounded-xl overflow-x-auto text-sm h-[340px] overflow-y-auto">
+                    <pre className="border text-xs md:text-sm border-[color:var(--color-500)] p-4 rounded-xl w-full max-w-full overflow-x-auto text-sm h-full overflow-y-auto">
                       {tailwindJSON.oklch}
                     </pre>
                     <Button
